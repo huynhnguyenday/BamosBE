@@ -21,18 +21,25 @@ dotenv.config();
 
 const app = express();
 app.use(cookieParser());
+
+// ✅ Đặt middleware CORS đúng vị trí
 const corsOptions = {
-  origin: ["http://localhost:5173", "https://bamoscoffee.vercel.app"], // Thêm Vercel domain
+  origin: ["http://localhost:5173", "https://bamoscoffee.vercel.app"], // Chấp nhận cả localhost và vercel
   credentials: true, // Cho phép gửi cookie, token
 };
 app.use(cors(corsOptions));
-app.use(express.json()); //allow accept json req.body
+app.options("*", cors()); // ✅ Fix lỗi preflight requests của CORS
+
+app.use(express.json()); // Allow accept JSON req.body
+
 // Tạo biến tương đương __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Cấu hình đường dẫn tĩnh cho folder assets
 app.use("/assets", express.static(path.join(__dirname, "../backend/assets")));
+
+// ✅ Middleware CORS PHẢI ĐƯỢC ĐẶT TRƯỚC CÁC API ROUTES
 app.use("/api/blogs", blogRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
@@ -45,12 +52,18 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/newsletters", newsletterRoutes);
 app.use("/api/vnpay", vnpayRoutes);
 
+// ✅ Đảm bảo server không crash khi không có database
 const port = process.env.PORT || 5000;
-app.listen(port, () => {
-  connectDB();
-  console.log(`Server started on port ${port}...`);
+app.listen(port, async () => {
+  try {
+    await connectDB();
+    console.log(`✅ Server started on port ${port}...`);
+  } catch (error) {
+    console.error("❌ Database connection failed:", error);
+  }
 });
 
+// ✅ Middleware session PHẢI ĐƯỢC ĐẶT SAU API ROUTES
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "default-session-secret",
