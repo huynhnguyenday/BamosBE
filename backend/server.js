@@ -49,10 +49,6 @@ app.use("/api/newsletters", newsletterRoutes);
 app.use("/api/vnpay", vnpayRoutes);
 
 const port = process.env.PORT || 5000;
-app.listen(port, () => {
-  connectDB();
-  console.log(`Server started on port ${port}...`);
-});
 
 app.use(
   session({
@@ -67,3 +63,8 @@ app.use(
     },
   })
 );
+
+app.listen(port, () => {
+  connectDB();
+  console.log(`Server started on port ${port}...`);
+});
