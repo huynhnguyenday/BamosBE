@@ -15,20 +15,18 @@ import cors from "cors";
 import { fileURLToPath } from "url";
 import path from "path";
 import cookieParser from "cookie-parser";
-import session from "express-session";
 import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
 app.use(cookieParser());
-app.use(
-  cors({
-    origin: ["http://localhost:5173", "https://bamoscoffee.vercel.app"], // Cho phép cả local & production
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Các phương thức được phép
-    allowedHeaders: ["Content-Type", "Authorization"], // Chấp nhận các loại header này
-    credentials: true, // Cho phép cookie & token
-  })
-);
+const corsOptions = {
+  origin: "https://bamoscoffee.vercel.app", // Đảm bảo không có dấu '/'
+  credentials: true, // Cho phép gửi cookie, token
+  methods: "GET,POST,PUT,DELETE", // Cho phép các phương thức cần thiết
+  allowedHeaders: "Content-Type,Authorization", // Cho phép gửi cookie, token
+};
+app.use(cors(corsOptions));
 app.use(express.json()); //allow accept json req.body
 // Tạo biến tương đương __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -53,17 +51,3 @@ app.listen(port, () => {
   connectDB();
   console.log(`Server started on port ${port}...`);
 });
-
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "default-session-secret",
-    resave: false,
-    saveUninitialized: false, // Chỉ lưu session khi cần
-    cookie: {
-      secure: process.env.NODE_ENV === "production", // Bật secure nếu dùng HTTPS
-      httpOnly: true, // Cookie chỉ được truy cập qua HTTP
-      sameSite: "strict", // Ngăn chặn CSRF
-      maxAge: 1000 * 60 * 60, // Cookie tồn tại trong 1 giờ
-    },
-  })
-);

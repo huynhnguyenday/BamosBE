@@ -12,7 +12,7 @@ export const getProduct = async (req, res) => {
 
     const productsWithFullImagePath = products.map((product) => ({
       ...product.toObject(),
-      image: `https://bamosbe-m9on.onrender.com/assets/${product.image}`,
+      image: `https://bamoscoffeehh.up.railway.app/assets/${product.image}`,
     }));
 
     // Return filtered products based on search term
@@ -94,7 +94,7 @@ export const createProduct = async (req, res) => {
     );
     const productWithFullImagePath = {
       ...populatedProduct.toObject(),
-      image: `https://bamosbe-m9on.onrender.com/assets/${populatedProduct.image}`,
+      image: `https://bamoscoffeehh.up.railway.app/assets/${populatedProduct.image}`,
     };
     res.status(201).json({ success: true, data: productWithFullImagePath });
   } catch (error) {
@@ -163,7 +163,7 @@ export const updateProduct = async (req, res) => {
     const productWithFullImagePath = {
       ...updatedProduct.toObject(),
       image: updatedProduct.image
-        ? `https://bamosbe-m9on.onrender.com/assets/${updatedProduct.image}`
+        ? `https://bamoscoffeehh.up.railway.app/assets/${updatedProduct.image}`
         : null,
     };
 
@@ -221,7 +221,7 @@ export const getRelatedProducts = async (req, res) => {
 
     const productsWithFullImagePath = relatedProducts.map((relatedProduct) => ({
       ...relatedProduct.toObject(),
-      image: `https://bamosbe-m9on.onrender.com/assets/${relatedProduct.image}`,
+      image: `https://bamoscoffeehh.up.railway.app/assets/${relatedProduct.image}`,
     }));
 
     res.status(200).json({
