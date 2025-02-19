@@ -22,7 +22,7 @@ dotenv.config();
 const app = express();
 app.use(cookieParser());
 const corsOptions = {
-  origin: "http://localhost:5173", // Origin cụ thể của React frontend
+  origin: ["http://localhost:5173", "https://bamoscoffee.vercel.app"], // Thêm Vercel domain
   credentials: true, // Cho phép gửi cookie, token
 };
 app.use(cors(corsOptions));
@@ -30,10 +30,6 @@ app.use(express.json()); //allow accept json req.body
 // Tạo biến tương đương __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-const cors = require("cors"); // Import CORS
-
-app.use(cors({ origin: "*" }));
 
 // Cấu hình đường dẫn tĩnh cho folder assets
 app.use("/assets", express.static(path.join(__dirname, "../backend/assets")));
