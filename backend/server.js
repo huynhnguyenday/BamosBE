@@ -31,6 +31,10 @@ app.use(express.json()); //allow accept json req.body
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const cors = require("cors"); // Import CORS
+
+app.use(cors({ origin: "https://bamoscoffee.vercel.app" })); // Chỉ cho phép frontend Vercel gọi API
+
 // Cấu hình đường dẫn tĩnh cho folder assets
 app.use("/assets", express.static(path.join(__dirname, "../backend/assets")));
 app.use("/api/blogs", blogRoutes);
