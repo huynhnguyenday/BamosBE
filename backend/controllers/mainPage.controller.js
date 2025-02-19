@@ -24,7 +24,7 @@ export const getProductById = async (req, res) => {
 
     const productWithFullImagePath = {
       ...product.toObject(),
-      image: `http://localhost:5000/assets/${product.image}`,
+      image: `https://bamoscoffee.up.railway.app/assets/${product.image}`,
     };
 
     res.status(200).json({
@@ -51,7 +51,7 @@ export const getHotProducts = async (req, res) => {
 
     const productsWithFullImagePath = products.map((product) => ({
       ...product.toObject(),
-      image: `http://localhost:5000/assets/${product.image}`,
+      image: `https://bamoscoffee.up.railway.app/assets/${product.image}`,
     }));
 
     res.status(200).json({
@@ -80,7 +80,7 @@ export const getActiveProducts = async (req, res) => {
 
     const productsWithFullImagePath = products.map((product) => ({
       ...product.toObject(),
-      image: `http://localhost:5000/assets/${product.image}`,
+      image: `https://bamoscoffee.up.railway.app/assets/${product.image}`,
     }));
 
     res.status(200).json({
