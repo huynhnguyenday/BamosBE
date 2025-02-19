@@ -23,7 +23,7 @@ export const getOrder = async (req, res) => {
         ...item,
         product: {
           ...item.product,
-          image: `https://bamoscoffee.up.railway.app/assets/${item.product.image}`,
+          image: `https://bamosbe-m9on.onrender.com/assets/${item.product.image}`,
         },
       })),
     }));
@@ -283,7 +283,7 @@ export const getOrderByToken = async (req, res) => {
         ...item,
         product: {
           ...item.product,
-          image: `https://bamoscoffee.up.railway.app/assets/${item.product.image}`,
+          image: `https://bamosbe-m9on.onrender.com/assets/${item.product.image}`,
         },
       })),
     }));
