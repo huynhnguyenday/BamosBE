@@ -58,12 +58,12 @@ app.use(
   session({
     secret: process.env.SESSION_SECRET || "default-session-secret",
     resave: false,
-    saveUninitialized: false, // Chỉ lưu session khi cần
+    saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === "production", // Bật secure nếu dùng HTTPS
-      httpOnly: true, // Cookie chỉ được truy cập qua HTTP
-      sameSite: "strict", // Ngăn chặn CSRF
-      maxAge: 1000 * 60 * 60, // Cookie tồn tại trong 1 giờ
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: "strict",
+      maxAge: 1000 * 60 * 60,
     },
   })
 );
