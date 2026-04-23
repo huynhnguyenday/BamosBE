@@ -20,13 +20,33 @@ dotenv.config();
 
 const app = express();
 app.use(cookieParser());
+
+const isProduction = process.env.NODE_ENV === "production";
+const defaultDevOrigins = ["http://localhost:5173", "http://127.0.0.1:5173"];
+const allowedOrigins = (
+  process.env.CORS_ORIGINS || (!isProduction ? defaultDevOrigins.join(",") : "")
+)
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 const corsOptions = {
-  origin: "https://bamoscoffee.vercel.app", // Đảm bảo không có dấu '/'
-  credentials: true, // Cho phép gửi cookie, token
-  methods: "GET,POST,PUT,DELETE", // Cho phép các phương thức cần thiết
-  allowedHeaders: "Content-Type,Authorization", // Cho phép gửi cookie, token
+  origin(origin, callback) {
+    // Allow requests without Origin header (Postman/server-to-server)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(express.json()); //allow accept json req.body
 // Tạo biến tương đương __dirname
 const __filename = fileURLToPath(import.meta.url);
