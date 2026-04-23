@@ -14,6 +14,8 @@ const categorySchema = new mongoose.Schema(
   }
 );
 
+categorySchema.index({ isActive: 1, updatedAt: -1 });
+
 const Category = mongoose.model("Category", categorySchema);
 
 export default Category;

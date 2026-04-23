@@ -19,6 +19,9 @@ const productSchema = new mongoose.Schema(
   }
 );
 
+productSchema.index({ displayHot: 1, displayType: 1, updatedAt: -1 });
+productSchema.index({ displayType: 1, updatedAt: -1 });
+
 const Product = mongoose.model("Product", productSchema);
 
 export default Product;

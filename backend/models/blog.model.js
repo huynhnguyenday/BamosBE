@@ -23,6 +23,9 @@ const blogSchema = new mongoose.Schema(
   }
 );
 
+blogSchema.index({ displayHot: 1, updatedAt: -1 });
+blogSchema.index({ displayBanner: 1, updatedAt: -1 });
+
 const Blog = mongoose.model("Blog", blogSchema);
 
 export default Blog;

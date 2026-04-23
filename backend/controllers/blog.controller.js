@@ -1,6 +1,39 @@
 import Blog from "../models/blog.model.js";
 import mongoose from "mongoose";
 
+const HOME_CACHE_TTL_MS = 60 * 1000;
+const endpointCache = new Map();
+
+const buildAssetUrl = (fileName) =>
+  `https://bamosbe-production.up.railway.app/assets/${fileName}`;
+
+const getCachedPayload = (key) => {
+  const cached = endpointCache.get(key);
+  if (!cached) return null;
+
+  if (cached.expiresAt < Date.now()) {
+    endpointCache.delete(key);
+    return null;
+  }
+
+  return cached.payload;
+};
+
+const setCachedPayload = (key, payload, ttlMs = HOME_CACHE_TTL_MS) => {
+  endpointCache.set(key, {
+    payload,
+    expiresAt: Date.now() + ttlMs,
+  });
+};
+
+const applyPublicApiCacheHeaders = (res) => {
+  // 60s browser cache + stale-while-revalidate for shared cache/CDN
+  res.set(
+    "Cache-Control",
+    "public, max-age=60, s-maxage=300, stale-while-revalidate=300"
+  );
+};
+
 export const getBlogs = async (req, res) => {
   try {
     const blogs = await Blog.find();
@@ -174,15 +207,27 @@ export const deleteBlog = async (req, res) => {
 
 export const getHotBlogs = async (req, res) => {
   try {
-    // Lấy tối đa 3 bài viết có displayHot: 1
-    const hotBlogs = await Blog.find({ displayHot: 1 }).sort({ updatedAt: -1 });
+    const cacheKey = "hotBlogs";
+    const cachedData = getCachedPayload(cacheKey);
+    if (cachedData) {
+      applyPublicApiCacheHeaders(res);
+      return res.status(200).json({ success: true, data: cachedData });
+    }
 
-    // Thêm đường dẫn đầy đủ cho ảnh
+    // Truy vấn nhẹ hơn để tối ưu endpoint home
+    const hotBlogs = await Blog.find({ displayHot: 1 })
+      .sort({ updatedAt: -1 })
+      .limit(6)
+      .select("title image content displayHot displayBanner createdAt updatedAt")
+      .lean();
+
     const blogsWithFullImagePath = hotBlogs.map((blog) => ({
-      ...blog.toObject(),
-      image: `https://bamosbe-production.up.railway.app/assets/${blog.image}`,
+      ...blog,
+      image: buildAssetUrl(blog.image),
     }));
 
+    setCachedPayload(cacheKey, blogsWithFullImagePath);
+    applyPublicApiCacheHeaders(res);
     res.status(200).json({
       success: true,
       data: blogsWithFullImagePath,
@@ -195,16 +240,27 @@ export const getHotBlogs = async (req, res) => {
 
 export const getBannerBlogs = async (req, res) => {
   try {
-    // Lấy các bài blog có displayBanner: 1
-    const bannerBlogs = await Blog.find({ displayBanner: 1 });
+    const cacheKey = "bannerBlogs";
+    const cachedData = getCachedPayload(cacheKey);
+    if (cachedData) {
+      applyPublicApiCacheHeaders(res);
+      return res.status(200).json({ success: true, data: cachedData });
+    }
 
-    // Chỉ lấy image và title, đồng thời thêm đường dẫn đầy đủ cho ảnh
+    const bannerBlogs = await Blog.find({ displayBanner: 1 })
+      .sort({ updatedAt: -1 })
+      .limit(5)
+      .select("title image")
+      .lean();
+
     const bannerBlogsWithImagePath = bannerBlogs.map((blog) => ({
       _id: blog._id,
-      image: `https://bamosbe-production.up.railway.app/assets/${blog.image}`,
+      image: buildAssetUrl(blog.image),
       title: blog.title,
     }));
 
+    setCachedPayload(cacheKey, bannerBlogsWithImagePath);
+    applyPublicApiCacheHeaders(res);
     res.status(200).json({
       success: true,
       data: bannerBlogsWithImagePath,
